@@ -1,59 +1,59 @@
 'use strict';
 
 var benchmark = require('benchmark');
-var dashdRPC = require('@dashevo/dashd-rpc');
+var zipdRPC = require('@zipeva/zipd-rpc');
 var async = require('async');
 var maxTime = 20;
 
-console.log('Dash Service native interface vs. Dash JSON RPC interface');
+console.log('Zip Service native interface vs. Zip JSON RPC interface');
 console.log('----------------------------------------------------------------------');
 
-// To run the benchmarks a fully synced Dash Core directory is needed. The RPC comands
-// can be modified to match the settings in dash.conf.
+// To run the benchmarks a fully synced Zip Core directory is needed. The RPC comands
+// can be modified to match the settings in zip.conf.
 
 var fixtureData = {
   blockHashes: [
-    '00000000fa7a4acea40e5d0591d64faf48fd862fa3561d111d967fc3a6a94177',
-    '000000000017e9e0afc4bc55339f60ffffb9cbe883f7348a9fbc198a486d5488',
-    '000000000019ddb889b534c5d85fca2c91a73feef6fd775cd228dea45353bae1',
-    '0000000000977ac3d9f5261efc88a3c2d25af92a91350750d00ad67744fa8d03'
+    '00000b0896b55ada0b830f4ae96b81344119008714af713b0b693dc0ca92df6f',
+    '00000bd7b94468042f90eb2cda6892ece51e00c0c6d4ce1a588efef7e4f0812b',
+    '00000499e1ab7704d7100ccec39ca4d0a2328f212e28eb539a6691661a232a3a',
+    '000000000b52dbc2e0076a2cee4eb20299f0dfc6b9cce21923f9ca85c0677bd8'
   ],
   txHashes: [
-    '5523b432c1bd6c101bee704ad6c560fd09aefc483f8a4998df6741feaa74e6eb',
-    'ff48393e7731507c789cfa9cbfae045b10e023ce34ace699a63cdad88c8b43f8',
-    '5d35c5eebf704877badd0a131b0a86588041997d40dbee8ccff21ca5b7e5e333',
-    '88842f2cf9d8659c3434f6bc0c515e22d87f33e864e504d2d7117163a572a3aa',
+    'c7a8aa497828e0ea78eff8536f18abcf04fa9ce238d2f24c27584e681afbd00d',
+    'f5926e65f888883957ed2c3cb34cf3bd4fbd2316c5665764f8eccac97457e388',
+    '90816b5798eeee731a5797ab8d6edab68784ffa149ab7a1005070c907f6bc2b5',
+    'd261f76eab0f67bda46aec12ffb76203e1737b97c07cf75624f75218faa1a317',
   ]
 };
 
-var dashd = require('../').services.Dash({
+var zipd = require('../').services.Zip({
   node: {
-    datadir: process.env.HOME + '/.dash',
+    datadir: process.env.HOME + '/.zip',
     network: {
       name: 'testnet'
     }
   }
 });
 
-dashd.on('error', function(err) {
+zipd.on('error', function(err) {
   console.error(err.message);
 });
 
-dashd.start(function(err) {
+zipd.start(function(err) {
   if (err) {
     throw err;
   }
-  console.log('Dash Core started');
+  console.log('Zip Core started');
 });
 
-dashd.on('ready', function() {
+zipd.on('ready', function() {
 
-  console.log('Dash Core ready');
+  console.log('Zip Core ready');
 
-  var client = new dashdRPC({
+  var client = new zipdRPC({
     host: 'localhost',
     port: 18332,
-    user: 'dash',
+    user: 'zip',
     pass: 'local321'
   });
 
@@ -64,12 +64,12 @@ dashd.on('ready', function() {
       var hashesLength = fixtureData.blockHashes.length;
       var txLength = fixtureData.txHashes.length;
 
-      function dashdGetBlockNative(deffered) {
+      function zipdGetBlockNative(deffered) {
         if (c >= hashesLength) {
           c = 0;
         }
         var hash = fixtureData.blockHashes[c];
-        dashd.getBlock(hash, function(err, block) {
+        zipd.getBlock(hash, function(err, block) {
           if (err) {
             throw err;
           }
@@ -78,7 +78,7 @@ dashd.on('ready', function() {
         c++;
       }
 
-      function dashdGetBlockJsonRpc(deffered) {
+      function zipdGetBlockJsonRpc(deffered) {
         if (c >= hashesLength) {
           c = 0;
         }
@@ -92,12 +92,12 @@ dashd.on('ready', function() {
         c++;
       }
 
-      function dashGetTransactionNative(deffered) {
+      function zipGetTransactionNative(deffered) {
         if (c >= txLength) {
           c = 0;
         }
         var hash = fixtureData.txHashes[c];
-        dashd.getTransaction(hash, true, function(err, tx) {
+        zipd.getTransaction(hash, true, function(err, tx) {
           if (err) {
             throw err;
           }
@@ -106,7 +106,7 @@ dashd.on('ready', function() {
         c++;
       }
 
-      function dashGetTransactionJsonRpc(deffered) {
+      function zipGetTransactionJsonRpc(deffered) {
         if (c >= txLength) {
           c = 0;
         }
@@ -122,22 +122,22 @@ dashd.on('ready', function() {
 
       var suite = new benchmark.Suite();
 
-      suite.add('dashd getblock (native)', dashdGetBlockNative, {
+      suite.add('zipd getblock (native)', zipdGetBlockNative, {
         defer: true,
         maxTime: maxTime
       });
 
-      suite.add('dashd getblock (json rpc)', dashdGetBlockJsonRpc, {
+      suite.add('zipd getblock (json rpc)', zipdGetBlockJsonRpc, {
         defer: true,
         maxTime: maxTime
       });
 
-      suite.add('dashd gettransaction (native)', dashGetTransactionNative, {
+      suite.add('zipd gettransaction (native)', zipGetTransactionNative, {
         defer: true,
         maxTime: maxTime
       });
 
-      suite.add('dashd gettransaction (json rpc)', dashGetTransactionJsonRpc, {
+      suite.add('zipd gettransaction (json rpc)', zipGetTransactionJsonRpc, {
         defer: true,
         maxTime: maxTime
       });
@@ -158,7 +158,7 @@ dashd.on('ready', function() {
       throw err;
     }
     console.log('Finished');
-    dashd.stop(function(err) {
+    zipd.stop(function(err) {
       if (err) {
         console.error('Fail to stop services: ' + err);
         process.exit(1);
