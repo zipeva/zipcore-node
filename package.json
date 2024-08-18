@@ -43,7 +43,7 @@
     "zipd"
   ],
   "dependencies": {
-    "@zipeva/zipcore-lib": "^0.21.3",
+    "@zipeva/zipcore-lib": "^0.21.4",
     "@zipeva/zipd-rpc": "^19.0.0",
     "async": "^2.6.1",
     "body-parser": "^1.18.3",
@@ -64,7 +64,7 @@
     "utf-8-validate": "~5.0.2"
   },
   "devDependencies": {
-    "@zipeva/zipcore-p2p": "^1.2.2",
+    "@zipeva/zipcore-p2p": "^1.2.3",
     "benchmark": "2.1.4",
     "chai": "^4.3.0",
     "coveralls": "^3.0.4",
